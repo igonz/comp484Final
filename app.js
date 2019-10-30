@@ -8,8 +8,13 @@ app.get('/', function(req, res){
 
 io.on('connection', function(socket){
   socket.on('chat message', function(msg){
+    console.log(msg);
     io.emit('chat message', msg);
   });
+
+  socket.on('drawingCoords', function(msg){
+    console.log(msg);
+  })
 });
 
 http.listen(3000, function(){
