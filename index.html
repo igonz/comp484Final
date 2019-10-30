@@ -13,7 +13,7 @@
       #messages li:nth-child(odd) { background: #eee; }
       .container {
         justify-content: center;
-        height: 100%; 
+        height: 100%;
         width:100%;
         display: flex;
       }
@@ -31,11 +31,14 @@
         background-color: blanchedalmond;
         width: 100%;
         height: 100%;
-        
+
       }
     </style>
   </head>
   <body>
+    <header> 
+      <h1> Final Project </h1>
+    </header>
     <div class="container">
         <div class="left">
             <canvas style="border:1px solid #000000;" id="myCanvas"></canvas>
@@ -48,7 +51,7 @@
             </form>
         </div>
     </div>
-    
+
     <script src="/socket.io/socket.io.js"></script>
     <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
     <script>
