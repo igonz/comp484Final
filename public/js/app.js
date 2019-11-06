@@ -65,7 +65,19 @@ function draw() {
     ctx.lineWidth = y;
     ctx.stroke();
     ctx.closePath();
-    socket.emit('drawingCoords', currX + "," + currY);
+    var coords = {"currX" : currX, "currY" : currY, "prevX": prevX, "prevY": prevY};
+    clientSessionInfo.coords = coords;
+    socket.emit('drawingCoords', clientSessionInfo);
+}
+
+function drawClient(clientCoords) {
+    ctx.beginPath();
+    ctx.moveTo(clientCoords.coords.prevX, clientCoords.coords.prevY);
+    ctx.lineTo(clientCoords.coords.currX, clientCoords.coords.currY);
+    ctx.strokeStyle = clientCoords.color;
+    ctx.lineWidth = y;
+    ctx.stroke();
+    ctx.closePath();
 }
 
 function erase() {
@@ -113,7 +125,7 @@ function findxy(res, e) {
         }
     }
 }
-
+var clientSessionInfo;
 var socket;
 $(function () {
     socket = io();
@@ -126,4 +138,17 @@ $(function () {
     socket.on('chat message', function (msg) {
         $('#messages').append($('<li>').text(msg));
     });
+
+    socket.on('updateClients', function(msg) {
+        if(msg.id != clientSessionInfo.id) {
+            console.log(msg.id + " " + clientSessionInfo.id);
+            drawClient(msg);
+        }
+    });
+
+    socket.on('message', function(data) {
+        clientSessionInfo = data;
+        x = clientSessionInfo.color;
+        console.log("Received " + data);
+    })
 });

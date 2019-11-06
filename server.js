@@ -4,7 +4,7 @@ var http = require('http').createServer(app);
 var io = require('socket.io')(http);
 
 var connectedUsersToColors = {};
-
+var clientColors = ["green", "red", "black", "yellow", "orange"];  
 app.use(express.static('public'));
 
 app.get('/', function(req, res){
@@ -12,7 +12,10 @@ app.get('/', function(req, res){
 });
 
 io.on('connection', function(socket){
-  socket.send(socket.id);
+  var clientSessionInfo = {};
+  clientSessionInfo.id = socket.id;
+  clientSessionInfo.color = clientColors[Math.floor(Math.random() * clientColors.length)];
+  socket.send(clientSessionInfo);
 
   socket.on('chat message', function(msg){
     console.log(msg);
@@ -20,7 +23,7 @@ io.on('connection', function(socket){
   });
 
   socket.on('drawingCoords', function(msg){
-    console.log(msg);
+    io.emit('updateClients', msg)
   });
 
   socket.on('disconnect', function(msg) {
