@@ -9,6 +9,17 @@ var x = "black",
     y = 2;
 
 function init() {
+    $(".clearButton").click(function() {
+        erase();
+        socket.emit('eraseCanvas', clientSessionInfo);
+    }); 
+
+    $("#thickness").val(y);
+    $("#thickness").change(function() {
+        if($("#thickness").val()) {
+            y = $("#thickness").val();
+        }
+    });
     canvas = document.getElementById('can');
     ctx = canvas.getContext("2d");
     w = canvas.width;
@@ -67,6 +78,7 @@ function draw() {
     ctx.closePath();
     var coords = {"currX" : currX, "currY" : currY, "prevX": prevX, "prevY": prevY};
     clientSessionInfo.coords = coords;
+    clientSessionInfo.thickness = y;
     socket.emit('drawingCoords', clientSessionInfo);
 }
 
@@ -75,17 +87,13 @@ function drawClient(clientCoords) {
     ctx.moveTo(clientCoords.coords.prevX, clientCoords.coords.prevY);
     ctx.lineTo(clientCoords.coords.currX, clientCoords.coords.currY);
     ctx.strokeStyle = clientCoords.color;
-    ctx.lineWidth = y;
+    ctx.lineWidth = clientCoords.thickness;
     ctx.stroke();
     ctx.closePath();
 }
 
-function erase() {
-    var m = confirm("Want to clear");
-    if (m) {
-        ctx.clearRect(0, 0, w, h);
-        document.getElementById("canvasimg").style.display = "none";
-    }
+function erase() {    
+    ctx.clearRect(0, 0, w, h);
 }
 
 function save() {
@@ -125,6 +133,7 @@ function findxy(res, e) {
         }
     }
 }
+var connectedClients = {};
 var clientSessionInfo;
 var socket;
 $(function () {
@@ -146,9 +155,32 @@ $(function () {
         }
     });
 
+    socket.on('clientConnections', function(data) {
+        if(data.id != clientSessionInfo.id) {
+            connectedClients[data.id] = data.color;
+            $('#messages').append("<li><font color='" + data.color + "'>User connected</font></li>");
+        }
+    });
+
+    socket.on("disconnect", function(data) {
+        console.log(connectedClients);
+        var color = connectedClients[data];
+        delete connectedClients[data];
+        $('#messages').append("<li><font color='" + color + "'>User disconnected</font></li>");
+    });
+
+    socket.on('eraseCanvas', function(client) {
+        if(client.id != clientSessionInfo.id) {
+            erase();
+            $('#messages').append("<li><font color='" + client.color + "'>User erased canvas</font></li>");
+        }
+        
+    });
+
     socket.on('message', function(data) {
         clientSessionInfo = data;
         x = clientSessionInfo.color;
+        socket.emit('clientConnections', data);
         console.log("Received " + data);
     })
 });

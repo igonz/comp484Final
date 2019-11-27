@@ -3,8 +3,15 @@ var express = require('express');
 var http = require('http').createServer(app);
 var io = require('socket.io')(http);
 
-var connectedUsersToColors = {};
-var clientColors = ["green", "red", "black", "yellow", "orange"];  
+function getRandomColor() {
+  var letters = '0123456789ABCDEF';
+  var color = '#';
+  for (var i = 0; i < 6; i++) {
+    color += letters[Math.floor(Math.random() * 16)];
+  }
+  return color;
+}
+
 app.use(express.static('public'));
 
 app.get('/', function(req, res){
@@ -14,7 +21,7 @@ app.get('/', function(req, res){
 io.on('connection', function(socket){
   var clientSessionInfo = {};
   clientSessionInfo.id = socket.id;
-  clientSessionInfo.color = clientColors[Math.floor(Math.random() * clientColors.length)];
+  clientSessionInfo.color = getRandomColor();
   socket.send(clientSessionInfo);
 
   socket.on('chat message', function(msg){
@@ -26,9 +33,18 @@ io.on('connection', function(socket){
     io.emit('updateClients', msg)
   });
 
+  socket.on('clientConnections', function(data) {
+    io.emit('clientConnections', data);
+  })
+
+  socket.on('eraseCanvas', function (client) {
+    io.emit('eraseCanvas', client);
+  });
+
   socket.on('disconnect', function(msg) {
-    console.log('Disconnected');
-    console.log(msg);
+    io.emit('disconnect', socket.id);
+    // console.log('Disconnected');
+    // console.log(socket.id);
   })
 });
 

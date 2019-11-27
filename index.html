@@ -8,9 +8,14 @@
     <header> 
       <h1> Final Project </h1>
     </header>
-    <canvas id="can" width="400" height="400" style="position:absolute;top:10%;left:10%;border:2px solid;"></canvas>
-    <div class="container">
+    <!-- <canvas id="can" width="400" height="400" style="position:absolute;top:10%;left:10%;border:2px solid;"></canvas> -->
+    <div class="main">
         <div class="left">
+            <canvas id="can" width=1045 height=800></canvas>
+            <div class=toolbar>
+              <p>Thickness: <input id="thickness" type="number" name="thickness" min="1"></p>
+              <button class="clearButton">Clear</button>
+          </div>
         </div>
 
         <div class="right">
@@ -20,7 +25,6 @@
             </form>
         </div>
     </div>
-
     <script src="/socket.io/socket.io.js"></script>
     <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
     <script type="text/javascript" src="js/app.js"></script>
